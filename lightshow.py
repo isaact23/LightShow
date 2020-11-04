@@ -10,6 +10,8 @@ import colorsys  # HSV to RGB
 import board  # GPIO
 import neopixel  # Set LED values
 
+import electoral_votes
+
 DARK_RED = (80, 0, 0)
 RED = (255, 0, 0)
 ORANGE = (255, 50, 0)
@@ -351,6 +353,18 @@ def useFunction(func, frequency=1, speed=1, sec=10):
         shift = shift + (speed * frequency)
         sleep(0.01)
 
+def presidential(biden=0, trump=0, frequency=1, speed=1, sec=10):
+    startTime = time.time()
+    shift = 0
+    while (time.time() - startTime < sec):
+        for i in range(size):
+            if i < round((biden * 75) / 270):
+                pixels[i] = b((frequency * i) + shift)
+            elif i >= round(150 - (trump * (75/270))):
+                pixels[i] = r((frequency * i) + shift)
+        pixels.write()
+        shift = shift + (speed * frequency)
+        sleep(0.01)
 
 def confineToRange(value, lower=0, upper=255):
     return math.floor((value * (upper - lower)) + lower)
@@ -369,16 +383,37 @@ def forestColor(t):
 
 
 def luminescentColor(t):
-    return (0, sineWave(t, 0, 100), cosineWave(t))
-
+    return hsv2rgb(sineWave(t, 80, 180), 255, 200)
 
 def autumnColor(t):
     return hsv2rgb(sineWave(t, 0, 50), 255, 200)
 
+def b(t):
+    return hsv2rgb(sineWave(t, 120, 180), 255, 50)
+
+def r(t):
+    return hsv2rgb(sineWave(t, 0, 20), 255, 50)
+
+for i in range(10):
+    # Stripes
+    multiStripe(sec=10, speed=0.5, width=10, colors=((50, 0, 0), (0, 0, 50)))
+
+    # Get Scores
+    scores = electoral_votes.get_scores()
+    biden = int(scores[0])
+    trump = int(scores[1])
+    tie = int(scores[2])
+    print("Biden", biden, "Trump", trump, "Tie", tie)
+
+    # Update strip
+    fill(OFF)
+    pixels[74] = (50, 50, 50)
+    pixels[75] = (50, 50, 50)
+    presidential(biden=biden, trump=trump, sec=60)
 
 # solidRainbow(10, 1, 255, 255)
 # useFunction(autumnColor, frequency=2, speed=2)
-# useFunction(luminescentColor, sec=3000)
+# useFunction(luminescentColor, sec=120)
 # randomTetris()
 # BLIPPISHOW()
 # show2()
