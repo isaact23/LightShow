@@ -1,2 +1,2 @@
-# NeopixelController
-Use the Neopixel Python library to control an addressable light strip.
+# LightShow
+Uses the Neopixel Python library to control an addressable light strip.
